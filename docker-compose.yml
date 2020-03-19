@@ -1,4 +1,4 @@
-version: '3'
+version: '3.7'
 
 services:
 
@@ -22,6 +22,7 @@ services:
             - PGID=${PGID}
             - PLEX_CLAIM=${PLEX_TOKEN}
             - VERSION=${PLEX_VERSION_TAG}
+            - UMASK_SET=022
         hostname: ${PLEX_HOSTNAME}
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/plex:/config'
@@ -30,6 +31,29 @@ services:
             - '${MEDIA_SERVER_ROOT}/${MEDIA_ANIME_FOLDER}:/data/anime'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_MOVIES_FOLDER}:/data/movies'
             - '/etc/localtime:/etc/localtime:ro'
+    
+    qbittorrent:
+    
+        image: linuxserver/qbittorrent
+        container_name: qbittorrent
+        restart: unless-stopped
+        networks:
+            - web
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TIMEZONE}
+            - UMASK_SET=022
+            - WEBUI_PORT=${QBITTORRENT_WEBUI_PORT}
+        volumes:
+            - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/qbittorrent:/config'
+            - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/downloads'
+            - '${MEDIA_SERVER_ROOT}/${TORRENT_STORAGE_FOLDER}:/torrents'
+        ports:
+            - 6881:6881
+            - 6881:6881/udp
+            - ${QBITTORRENT_WEBUI_PORT}:${QBITTORRENT_WEBUI_PORT}
+            - 10625:10625
     
     transmission:
         
@@ -42,9 +66,10 @@ services:
             - PUID=${PUID}
             - PGID=${PGID}
             - TZ=${TIMEZONE}
-            - TRANSMISSION_WEB_HOME=/combustion-release/ #optional
-            - USER=${TRANSMISSION_USERNAME} #optional
-            - PASS=${TRANSMISSION_PASSWORD} #optional
+            - TRANSMISSION_WEB_HOME=/combustion-release/
+            - USER=${TRANSMISSION_USERNAME}
+            - PASS=${TRANSMISSION_PASSWORD}
+            - UMASK_SET=022
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/transmission:/config'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/downloads/complete'
@@ -67,12 +92,16 @@ services:
             - TZ=${TIMEZONE}
             - PUID=${PUID}
             - PGID=${PGID}
+            - UMASK_SET=022
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/sonarr:/config'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/data/staging'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_TV_SHOWS_FOLDER}:/data/tvshows'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_ANIME_FOLDER}:/data/anime'
             - '/etc/localtime:/etc/localtime:ro'
+        links:
+            # use http://jackett:8989 instead of http://localhost:8989 when adding indexer
+            - jackett:jackett
 
     radarr:
         
@@ -87,11 +116,15 @@ services:
             - TZ=${TIMEZONE}
             - PUID=${PUID}
             - PGID=${PGID}
+            - UMASK_SET=022
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/radarr:/config'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/data/staging'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_MOVIES_FOLDER}:/data/movies'
             - '/etc/localtime:/etc/localtime:ro'
+        links:
+            # use http://jackett:8989 instead of http://localhost:8989 when adding indexer
+            - jackett:jackett
 
     jackett:
         
@@ -106,6 +139,7 @@ services:
             - TZ=${TIMEZONE}
             - PUID=${PUID}
             - PGID=${PGID}
+            - UMASK_SET=022
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/jackett:/config'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/data/staging'
@@ -124,6 +158,7 @@ services:
             - TZ=${TIMEZONE}
             - PUID=${PUID}
             - PGID=${PGID}
+            - UMASK_SET=022
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/tautulli:/config'
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/plex/Library/Application Support/Plex Media Server/Logs:/logs:ro'
@@ -144,6 +179,7 @@ services:
             - TZ=${TIMEZONE}
             - PUID=${PUID}
             - PGID=${PGID}
+            - UMASK_SET=022
         volumes:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/portainer:/data'
             - '/var/run/docker.sock:/var/run/docker.sock'
