@@ -149,6 +149,24 @@ services:
             - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/data/staging'
             - '/etc/localtime:/etc/localtime:ro'
             
+    duplicati:
+    
+        image: linuxserver/duplicati
+        container_name: duplicati
+        restart: unless-stopped
+        networks:
+            - web
+        ports:
+            - 8200:8200
+        environment:
+            - PUID=${PUID}
+            - PGID=${PGID}
+            - TZ=${TIMEZONE}
+            - UMASK_SET=022
+        volumes:
+            - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/duplicati:/config'
+            - '${MEDIA_SERVER_ROOT}:${MEDIA_SERVER_ROOT}'
+            
     tautulli:
         
         image: linuxserver/tautulli
