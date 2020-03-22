@@ -49,36 +49,13 @@ services:
             - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/qbittorrent:/config'
             - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/downloads'
             - '${MEDIA_SERVER_ROOT}/${TORRENT_STORAGE_FOLDER}:/torrents'
+            - '${MEDIA_SERVER_ROOT}/${TORRENT_WATCH_FOLDER}:/torrent-watch'
         ports:
             - 6881:6881
             - 6881:6881/udp
             - ${QBITTORRENT_WEBUI_PORT}:${QBITTORRENT_WEBUI_PORT}
             - 10625:10625
-    
-    transmission:
-        
-        image: linuxserver/transmission
-        container_name: transmission
-        restart: unless-stopped
-        networks:
-            - web
-        environment:
-            - PUID=${PUID}
-            - PGID=${PGID}
-            - TZ=${TIMEZONE}
-            - TRANSMISSION_WEB_HOME=/combustion-release/
-            - USER=${TRANSMISSION_USERNAME}
-            - PASS=${TRANSMISSION_PASSWORD}
-            - UMASK_SET=022
-        volumes:
-            - '${MEDIA_SERVER_ROOT}/${CONFIG_FOLDER}/transmission:/config'
-            - '${MEDIA_SERVER_ROOT}/${MEDIA_STAGING_FOLDER}:/downloads/complete'
-            - '${MEDIA_SERVER_ROOT}/${TRANSMISSION_WATCH_FOLDER}:/watch'
-        ports:
-            - 9091:9091
-            - 51413:51413
-            - 51413:51413/udp
-    
+
     sonarr:
         
         image: linuxserver/sonarr
