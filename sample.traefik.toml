@@ -1,0 +1,38 @@
+[log]
+  # DEBUG, PANIC, FATAL, ERROR, WARN, and INFO
+  level = "DEBUG" # Should change this after setup
+  
+[api]
+  dashboard = true
+  debug = true
+  insecure = false # If true, you can access dashboard on 8080 port (open 8080 on your router first)
+  
+[providers.docker]
+  endpoint = "unix:///var/run/docker.sock"
+  watch = true
+  exposedByDefault = false # traefik.enable=true is needed for this to work
+  network = "app-net"
+
+[entryPoints]
+  [entryPoints.http]
+    address = ":80"
+    [entryPoints.http.redirect]
+      entryPoint = "https"
+  [entryPoints.https]
+    address = ":443"
+      [entryPoints.https.tls]
+
+[retry]
+
+[acme]
+email = "me@example.com"
+storage = "acme.json"
+entryPoint = "https"
+OnHostRule = true
+  [acme.httpChallenge]
+  entryPoint = "http"
+  
+[http.routers]
+  [http.routers.mediaserver-dashboard]
+    rule = "Host(`traefik.${DDNS_DOMAIN}˙)"
+    service = traefik
